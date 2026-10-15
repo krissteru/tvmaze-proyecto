@@ -1,0 +1,44 @@
+import { getShows } from './services/tvmaze.js';
+
+const appContainer = document.querySelector('#app') || document.body;
+
+async function renderCatalog() {
+  try {
+    appContainer.innerHTML = '<p style="text-align: center; font-family: sans-serif; margin-top: 40px;">Cargando catálogo de series...</p>';
+
+    const shows = await getShows();
+
+    let html = `
+      <header style="padding: 20px; font-family: sans-serif; background: #141414; color: white;">
+        <h1 style="margin: 0; font-size: 24px;">🎬 NetFilm / TV Catalog</h1>
+      </header>
+      <main style="padding: 20px; font-family: sans-serif; background: #181818; min-height: 100vh; color: white;">
+        <h2 style="margin-bottom: 20px; font-size: 20px;">Series Populares</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px;">
+    `;
+
+    shows.slice(0, 36).forEach((show) => {
+      html += `
+        <div style="background: #222; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.5); transition: transform 0.2s;">
+          ${show.image ? `<img src="${show.image.medium}" alt="${show.name}" style="width: 100%; height: 230px; object-fit: cover;">` : '<div style="height: 230px; background: #333; display: flex; align-items: center; justify-content: center; color: #aaa;">Sin imagen</div>'}
+          <div style="padding: 12px;">
+            <h3 style="font-size: 14px; margin: 0 0 6px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${show.name}">${show.name}</h3>
+            <p style="font-size: 12px; color: #aaa; margin: 0;">★ ${show.rating?.average || 'N/A'}</p>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `
+        </div>
+      </main>
+    `;
+
+    appContainer.innerHTML = html;
+  } catch (error) {
+    console.error('Error al cargar el catálogo:', error);
+    appContainer.innerHTML = `<p style="color: red; text-align: center; margin-top: 40px;">Ocurrió un error al cargar el catálogo: ${error.message}</p>`;
+  }
+}
+
+renderCatalog();
